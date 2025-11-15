@@ -1,5 +1,6 @@
 package com.video.processing.controllers;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.springframework.http.HttpStatus;
@@ -9,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.video.processing.dtos.EmailRequest;
 import com.video.processing.dtos.LoginRequest;
 import com.video.processing.dtos.LoginResponse;
+import com.video.processing.entities.User;
 import com.video.processing.services.AuthService;
 import com.video.processing.utilities.ResponseFromApi;
 
@@ -32,5 +35,15 @@ public class AuthController {
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(ResponseFromApi.success(loginResponse, "Logged in successfully."));
+    }
+
+    @PostMapping("/forget-password")
+    public ResponseEntity<ResponseFromApi<Optional<User>>> forgetPassword(@RequestBody EmailRequest emailRequest){
+        logger.info(emailRequest.getEmail());
+
+        Optional<User> user = this.authService.findUserByEmail(emailRequest.getEmail());
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(ResponseFromApi.success(user, "User fetched successfully."));
     }
 }
