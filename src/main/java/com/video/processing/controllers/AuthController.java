@@ -38,10 +38,10 @@ public class AuthController {
     }
 
     @PostMapping("/forget-password")
-    public ResponseEntity<ResponseFromApi<Optional<User>>> forgetPassword(@RequestBody EmailRequest emailRequest){
+    public ResponseEntity<ResponseFromApi<User>> forgetPassword(@RequestBody EmailRequest emailRequest){
         logger.info(emailRequest.getEmail());
 
-        Optional<User> user = this.authService.findUserByEmail(emailRequest.getEmail());
+        User user = this.authService.findUserByEmail(emailRequest.getEmail());
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(ResponseFromApi.success(user, "User fetched successfully."));

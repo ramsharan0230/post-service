@@ -2,11 +2,12 @@ package com.video.processing.exceptions;
 
 import java.io.IOException;
 import java.util.logging.Logger;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import com.video.processing.exceptions.MessagingException;
+
 
 import com.video.processing.utilities.ResponseFromApi;
 
@@ -24,15 +25,25 @@ public class GlobalExceptionHandler {
                 .body(ResponseFromApi.error(exception.getMessage(), HttpStatus.NOT_FOUND.value()));
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ResponseFromApi<Object>> handleRuntimeException(RuntimeException exception){
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ResponseFromApi<Object>> handleIOException(IOException exception){
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ResponseFromApi.error(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value())); 
     }
 
-    @ExceptionHandler(IOException.class)
-    public ResponseEntity<ResponseFromApi<Object>> handleIOException(IOException exception){
+    @ExceptionHandler(MessagingException.class)
+    public ResponseEntity<ResponseFromApi<Object>> handleMessagingException(MessagingException exception){
+        if (exception.getCause() != null) {
+            logger.severe("Root cause: " + exception.getCause().getMessage());
+        }
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ResponseFromApi.error(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value())); 
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ResponseFromApi<Object>> handleRuntimeException(RuntimeException exception){
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ResponseFromApi.error(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value())); 
