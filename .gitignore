@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 
 uploads/
+application.properties
 
 ### STS ###
 .apt_generated
@@ -33,3 +34,5 @@ build/
 
 ### VS Code ###
 .vscode/
+
+.env
