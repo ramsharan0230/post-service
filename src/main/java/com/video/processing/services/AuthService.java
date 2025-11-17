@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.video.processing.dtos.LoginRequest;
 import com.video.processing.dtos.LoginResponse;
@@ -18,6 +20,8 @@ import jakarta.mail.MessagingException;
 
 @Service
 public class AuthService {
+    @Value( "${app.base-url}" )
+    private String baseUrl;
 
     private final UserRepository userRepository;
     private final AuthTokenRepository authTokenRepository;
