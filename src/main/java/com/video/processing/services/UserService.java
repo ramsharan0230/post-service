@@ -3,9 +3,12 @@ package com.video.processing.services;
 
 import com.video.processing.entities.User;
 import com.video.processing.enums.UserStatus;
+import com.video.processing.events.UserCreatedEvent;
 import com.video.processing.repositories.UserRepository;
 import com.video.processing.utilities.PasswordUtil;
 
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,9 +17,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository, ApplicationEventPublisher eventPublisher){
         this.userRepository = userRepository;
+        this.applicationEventPublisher = eventPublisher;
     }
 
     public Page<User> fetchAllUsers(int page, int size) {
@@ -38,7 +43,9 @@ public class UserService {
             user.setStatus(UserStatus.APPROVED);
         }
         
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        this.applicationEventPublisher.publishEvent(new UserCreatedEvent(savedUser));
+        return savedUser;
     }
 
     private String extractUsernameFromEmail(String email) {
@@ -51,10 +58,7 @@ public class UserService {
     private String generateUniqueUsername(String baseUsername) {
         String username = baseUsername;
         int counter = 1;
-        
-        // Clean username - remove any special characters except underscores and dots
         username = username.replaceAll("[^a-zA-Z0-9._]", "");
-        
         while (usernameExists(username)) {
             username = baseUsername + counter;
             counter++;
