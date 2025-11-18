@@ -32,11 +32,8 @@ public class UserCreatedListener {
                     "welcome",
                     variables
             );
-            // Random random = new Random();
-		    // System.out.println("random int: "+random.nextInt(100000));
-
         } catch (Exception exception) {
-
+            logger.info("exception while sending email to user: "+exception.getMessage());
         }
     }
 }

@@ -6,11 +6,14 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import com.video.processing.dtos.LoginRequest;
 import com.video.processing.dtos.LoginResponse;
 import com.video.processing.entities.AuthToken;
 import com.video.processing.entities.User;
+import com.video.processing.events.PasswordResetEvent;
+import com.video.processing.events.UserCreatedEvent;
 import com.video.processing.exceptions.ResourceNotFoundException;
 import com.video.processing.repositories.AuthTokenRepository;
 import com.video.processing.repositories.UserRepository;
@@ -26,16 +29,20 @@ public class AuthService {
     private final UserRepository userRepository;
     private final AuthTokenRepository authTokenRepository;
     private final EmailService emailService;
+    private final ApplicationEventPublisher applicationEventPublisher;
+
     private final Logger logger = Logger.getLogger(AuthService.class.getName());
 
     public AuthService(
             UserRepository userRepository,
             AuthTokenRepository authTokenRepository,
-            EmailService emailService
+            EmailService emailService,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.userRepository = userRepository;
         this.authTokenRepository = authTokenRepository;
         this.emailService = emailService;
+        this.applicationEventPublisher = eventPublisher;
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
@@ -80,7 +87,7 @@ public class AuthService {
             Map<String, Object> variables = Map.of(
                     "firstName", user.getFirstName(),
                     "email", user.getEmail(),
-                    "verificationLink", "https://yourdomain.com/verify?token=sdf08sdf7d8f6dfdf"
+                    "verificationLink", baseUrl+"/verify"
             );
 
             emailService.sendMail(
@@ -89,6 +96,7 @@ public class AuthService {
                     "welcome",
                     variables
             );
+            applicationEventPublisher.publishEvent(new PasswordResetEvent(user));
         } catch (MessagingException e) {
             logger.info("Failed to send welcome email to " + user.getEmail() + " | " + e.getMessage());
         }

@@ -6,8 +6,6 @@ import com.video.processing.enums.UserStatus;
 import com.video.processing.events.UserCreatedEvent;
 import com.video.processing.repositories.UserRepository;
 import com.video.processing.utilities.PasswordUtil;
-
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
