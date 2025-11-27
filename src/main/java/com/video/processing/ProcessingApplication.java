@@ -1,8 +1,5 @@
 package com.video.processing;
 
-import java.util.Random;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -17,6 +14,7 @@ public class ProcessingApplication {
         dotenv.entries().forEach(entry -> {
             System.setProperty(entry.getKey(), entry.getValue());
         });
+
 		SpringApplication.run(ProcessingApplication.class, args);
 	}
 

@@ -2,16 +2,19 @@ package com.video.processing.entities;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import com.video.processing.enums.TokenType;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "auth_tokens")
+@ToString
+@Builder
 public class AuthToken {
 
     @Id
@@ -21,12 +24,19 @@ public class AuthToken {
 
     private LocalDateTime expiresAt;
 
-    public AuthToken() {}
+    @Enumerated(EnumType.STRING)
+    private TokenType status;
 
-    public AuthToken(String token, Long userId, LocalDateTime expiresAt) {
-        this.token = token;
-        this.userId = userId;
-        this.expiresAt = expiresAt;
+    @Column(name = "is_login_token")
+    private boolean isLoginToken;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void setDefaultStatus() {
+        if (status == null) {
+            status = TokenType.PENDING;
+        }
     }
-
 }
