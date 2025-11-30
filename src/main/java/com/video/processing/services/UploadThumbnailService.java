@@ -31,7 +31,6 @@ public class UploadThumbnailService {
         Path filePath = uploadPath.resolve(fileName);
 
         file.transferTo(filePath.toFile());
-
-        return filePath.toString();
+        return "uploads/thumbnails/" + fileName;
     }
 }
