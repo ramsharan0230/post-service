@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.3</version>
+        <version>3.4.3</version>
         <relativePath/>
     </parent>
 
@@ -22,7 +22,6 @@
         <spring-cloud.version>2024.0.1</spring-cloud.version>
     </properties>
 
-    <!-- Import Spring Cloud BOM -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -36,7 +35,6 @@
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -93,17 +91,28 @@
         </dependency>
 
         <!-- Eureka Server -->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!-- Test Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -135,6 +144,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
- 

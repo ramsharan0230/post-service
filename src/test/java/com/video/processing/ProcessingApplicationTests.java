@@ -8,6 +8,6 @@ class ProcessingApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// This test will pass with test configuration
 	}
-
 }
