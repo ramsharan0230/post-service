@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
-
 import com.video.processing.enums.TokenType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -17,7 +16,8 @@ import com.video.processing.events.PasswordResetEvent;
 import com.video.processing.exceptions.ResourceNotFoundException;
 import com.video.processing.repositories.UserRepository;
 import com.video.processing.utilities.PasswordUtil;
-
+import com.video.processing.utilities.JwtTokenUtil;
+import org.springframework.beans.factory.annotation.Value;
 import jakarta.mail.MessagingException;
 
 @Service
@@ -25,10 +25,15 @@ public class AuthService {
     @Value( "${app.base-url}" )
     private String baseUrl;
 
+    @Value("${jwt.expiration:86400000}")
+    private Long jwtExpiration;
+
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final AuthTokenService authTokenService;
+    private final JwtTokenUtil jwtTokenUtil;
+
 
     private final Logger logger = Logger.getLogger(AuthService.class.getName());
 
@@ -36,50 +41,49 @@ public class AuthService {
             UserRepository userRepository,
             EmailService emailService,
             ApplicationEventPublisher eventPublisher,
-            AuthTokenService authTokenService
+            AuthTokenService authTokenService,
+            JwtTokenUtil jwtTokenUtil
     ) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.applicationEventPublisher = eventPublisher;
         this.authTokenService = authTokenService;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail())
-            .orElseThrow(()->new ResourceNotFoundException("User not found with given email."));
-
-        if (user == null) {
-            throw new RuntimeException("User not found.");
-        }
-
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
         String hashedInputPassword = PasswordUtil.hashPassword(loginRequest.getPassword());
-
-        logger.info("Hashed incoming password: "+ hashedInputPassword);
         if (!hashedInputPassword.equals(user.getPassword())) {
-            throw new RuntimeException("Invalid username or password");
+            throw new RuntimeException("Invalid password");
         }
-
-        String tokenValue = UUID.randomUUID().toString();
-        LocalDateTime expiresAt = LocalDateTime.now().plusHours(1);
+        
+        String token = jwtTokenUtil.generateToken(
+            user.getId(),
+            user.getEmail(),
+            user.getUsername()
+        );
+        
         AuthToken authToken = AuthToken.builder()
-                .token(tokenValue)
+                .token(token)
                 .userId(user.getId())
                 .status(TokenType.VERIFIED)
-                .expiresAt(expiresAt)
+                .expiresAt(LocalDateTime.now().plusHours(24)) 
                 .createdAt(LocalDateTime.now())
                 .isLoginToken(true)
                 .build();
-
-        AuthToken authTokenCreated = this.authTokenService.createAuthToken(authToken);
-        System.out.println("Auth_token; "+authTokenCreated);
-
+        
+        this.authTokenService.createAuthToken(authToken);
+        
         return new LoginResponse(
                 user.getUsername(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                tokenValue,
-                expiresAt
+                token,
+                authToken.getExpiresAt()
         );
     }
 
