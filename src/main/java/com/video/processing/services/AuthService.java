@@ -6,9 +6,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import com.video.processing.enums.TokenType;
-import com.video.processing.events.AuthPasswordResetToken;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import com.video.processing.dtos.LoginRequest;
@@ -72,16 +70,6 @@ public class AuthService {
                 .isLoginToken(true)
                 .build();
 
-
-
-
-//        AuthToken token = new AuthToken(
-//                tokenValue,
-//                user.getId(),
-//                expiresAt,
-//                TokenType.VERIFIED,
-//                LocalDateTime.now()
-//        );
         AuthToken authTokenCreated = this.authTokenService.createAuthToken(authToken);
         System.out.println("Auth_token; "+authTokenCreated);
 

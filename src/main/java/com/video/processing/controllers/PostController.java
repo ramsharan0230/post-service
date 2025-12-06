@@ -1,9 +1,11 @@
 package com.video.processing.controllers;
 
 import com.video.processing.entities.Post;
+import com.video.processing.entities.User;
 import com.video.processing.services.PostService;
 import com.video.processing.services.UploadThumbnailService;
 import com.video.processing.utilities.ResponseFromApi;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import java.io.IOException;
 import org.slf4j.Logger;
@@ -42,15 +44,20 @@ public class PostController {
     public ResponseEntity<ResponseFromApi<Post>> savePost(
             @RequestParam("title") String title,
             @RequestParam("description") String description,
-            @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail) throws IOException {
+            @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+            HttpServletRequest request) throws IOException {
 
         String uploadedFilePath = this.uploadThumbnailService.saveFile(thumbnail);
-        logger.info("file path for uploaded file: {}", uploadedFilePath);
+        User user = (User) request.getAttribute("currentUser");
+        logger.info("current-user: {}", user);
+
         Post post = Post.builder()
                 .title(title)
                 .description(description)
                 .thumbnail(uploadedFilePath)
+                .user(user)
                 .build();
+
 
         Post postCreated = this.pService.createNewPost(post);
         ResponseFromApi<Post> responseFromApi = ResponseFromApi.success(postCreated, "Post created successful.");

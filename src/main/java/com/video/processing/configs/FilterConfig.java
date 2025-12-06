@@ -1,20 +1,22 @@
 package com.video.processing.configs;
 
-import java.util.logging.Logger;
+import com.video.processing.repositories.AuthTokenRepository;
+import com.video.processing.repositories.UserRepository;
+import com.video.processing.utilities.AuthFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.video.processing.repositories.AuthTokenRepository;
-import com.video.processing.utilities.AuthFilter;
+import java.util.logging.Logger;
 
 @Configuration
 public class FilterConfig {
-    Logger logger = Logger.getLogger(FilterConfig.class.getName());    
+
+    Logger logger = Logger.getLogger(FilterConfig.class.getName());
 
     @Bean
-    public AuthFilter authFilterBean(AuthTokenRepository tokenRepo) {
-        return new AuthFilter(tokenRepo);
+    public AuthFilter authFilterBean(AuthTokenRepository tokenRepo, UserRepository userRepository) {
+        return new AuthFilter(tokenRepo, userRepository);
     }
 
     @Bean
